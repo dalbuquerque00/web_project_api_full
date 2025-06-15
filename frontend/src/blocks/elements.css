@@ -1,0 +1,144 @@
+.elements {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px 17px;
+  justify-content: center;
+  width: 100%;
+}
+
+.elements__item {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  width: 100%;
+  height: 28.2vw;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.elements__item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  min-height: 0;
+  cursor: pointer;
+}
+
+.elements__item-content {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  height: 6.25vw;
+  padding: 0 18px;
+  grid-row: 2;
+}
+
+.elements__item-title {
+  color: black;
+  font-size: 1.5em;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.elements__item-button {
+  display: contents;
+}
+
+.elements__delete {
+  position: absolute;
+  top: 18px;
+  right: 15px;
+  background: none;
+  border: none;
+  background-image: url("../images/delete.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 1.41vw;
+  height: 1.49vw;
+  cursor: pointer;
+  padding: 0;
+}
+
+.elements__delete:hover {
+  opacity: 0.6;
+}
+
+.elements__item-like {
+  width: 1.71vw;
+  height: 1.71vw;
+  justify-self: end;
+  cursor: pointer;
+  fill: black;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-image: url("../images/like.svg");
+  border: none;
+  background-color: transparent;
+}
+
+.elements__item-like:hover {
+  opacity: 0.5;
+}
+
+.elements__item-like_active {
+  background-image: url("../images/like-active.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+@media screen and (max-width: 768px) {
+  .elements {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .elements__item {
+    height: 41vw;
+  }
+  .elements__item-like {
+    width: 2.3vw;
+  }
+  .elements__delete {
+    width: 2.6vw;
+    height: 2.9vw;
+  }
+}
+
+@media screen and (max-width: 544px) {
+  .elements {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .elements__item {
+    height: 112vw;
+  }
+  .elements__item-title {
+    font-size: 2.85em;
+  }
+  .elements__item-content {
+    height: 24.68vw;
+  }
+  .elements__item-like {
+    width: 7.5vw;
+  }
+  .elements__delete {
+    width: 6.9vw;
+    height: 7.2vw;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .elements__item {
+    width: 88vw;
+    height: 112.8vw;
+  }
+  .elements__item-content {
+    height: 24.68vw;
+  }
+  .elements__item-like {
+    width: 7.5vw;
+  }
+}

@@ -6,14 +6,16 @@ const User = require('../models/user');
 const { NODE_ENV, JWT_SECRET = 'segredo-super-seguro' } = process.env;
 
 // Controlador para registro do user
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
 
   // Verificação de email existente
   User.findOne({ email })
     .then((existingUser) => {
       if (existingUser) {
-        return res.status(409).send({ message: 'E-mail já registrado.' });
+        const err = new Error('E-mail já registrado.');
+        err.statusCode = 409;
+        return next(err);
       }
 
       // Faz hash da senha
@@ -32,30 +34,33 @@ module.exports.createUser = (req, res) => {
           res.status(201).send(userObj);
         })
         .catch((err) => {
-          res.status(400).send({ message: 'Erro ao criar usuário', error: err.message });
+          err.statusCode = 400;
+          next(err);
         });
     })
-    .catch((err) => {
-      res.status(500).send({ message: 'Erro interno do servidor', error: err.message });
-    });
+    .catch(next);
 };
 
 // Controlador para login (autenticação)
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   // Busca o usuário e inclui o hash da senha (select('+password'))
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return res.status(401).send({ message: 'Email ou senha incorretos' });
+        const err = new Error('Email ou senha incorretos');
+        err.statusCode = 401;
+        return next(err);
       }
 
       // Compara o hash da senha
       bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return res.status(401).send({ message: 'Email ou senha incorretos' });
+            const err = new Error('Email ou senha incorretos');
+            err.statusCode = 401;
+            return next(err);
           }
 
           // Gerar JWT só com o _id
@@ -65,25 +70,28 @@ module.exports.login = (req, res) => {
             { expiresIn: '7d' }
           );
           res.send({ token });
-        });
+        })
+        .catch(next);
     })
-    .catch((err) => {
-      res.status(500).send({ message: 'Erro interno do servidor', error: err.message });
-    });
+    .catch(next);
 };
 
 // Retorna as informações do usuário atual
-module.exports.getCurrentUser = (req, res) => {
+module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
-      if (!user) return res.status(404).send({ message: 'Usuário não encontrado' });
+      if (!user) {
+        const err = new Error('Usuário não encontrado');
+        err.statusCode = 404;
+        return next(err);
+      }
       res.send(user);
     })
-    .catch(() => res.status(500).send({ message: 'Erro ao buscar usuário' }));
+    .catch(next);
 };
 
-// Atualiza name e about do perfil (apenas do próprio usuário)
-module.exports.updateProfile = (req, res) => {
+// Atualiza name e about do perfil (apenas o usuário pode)
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -91,14 +99,21 @@ module.exports.updateProfile = (req, res) => {
     { new: true, runValidators: true }
   )
     .then((user) => {
-      if (!user) return res.status(404).send({ message: 'Usuário não encontrado' });
+      if (!user) {
+        const err = new Error('Usuário não encontrado');
+        err.statusCode = 404;
+        return next(err);
+      }
       res.send(user);
     })
-    .catch((err) => res.status(400).send({ message: 'Erro ao atualizar perfil', error: err.message }));
+    .catch((err) => {
+      err.statusCode = 400;
+      next(err);
+    });
 };
 
-// Atualiza avatar (apenas do próprio usuário)
-module.exports.updateAvatar = (req, res) => {
+// Atualiza avatar (apenas o usuarii pode)
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -106,8 +121,15 @@ module.exports.updateAvatar = (req, res) => {
     { new: true, runValidators: true }
   )
     .then((user) => {
-      if (!user) return res.status(404).send({ message: 'Usuário não encontrado' });
+      if (!user) {
+        const err = new Error('Usuário não encontrado');
+        err.statusCode = 404;
+        return next(err);
+      }
       res.send(user);
     })
-    .catch((err) => res.status(400).send({ message: 'Erro ao atualizar avatar', error: err.message }));
+    .catch((err) => {
+      err.statusCode = 400;
+      next(err);
+    });
 };

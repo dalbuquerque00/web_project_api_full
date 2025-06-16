@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middleware/auth');
+const errorHandler = require('./middleware/errorHandler');
 const User = require('./models/user');
 
 const { PORT = 3000, MONGODB_URI = 'mongodb://127.0.0.1:27017/around_auth_db' } = process.env;
@@ -22,18 +23,8 @@ app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-// Exemplo de rota protegida: informações do usuário atual
-app.get('/users/me', (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      if (!user) {
-        return res.status(404).send({ message: 'Usuário não encontrado' });
-      }
-      res.send(user);
-    })
-    .catch(() => res.status(500).send({ message: 'Erro ao buscar usuário' }));
-});
-
+// Middleware de tratamento de erros centralizado (deve ficar depois das rotas)
+app.use(errorHandler);
 
 // Conexão com MongoDB e start do servidor
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true })

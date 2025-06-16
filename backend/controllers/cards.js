@@ -1,36 +1,46 @@
 const Card = require('../models/card');
 
 // Lista todos os cards
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((cards) => res.send(cards))
-    .catch(() => res.status(500).send({ message: 'Erro ao buscar cards' }));
+    .catch(next);
 };
 
 // Cria um novo card
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(201).send(card))
-    .catch((err) => res.status(400).send({ message: 'Erro ao criar card', error: err.message }));
+    .catch(() => {
+      const err = new Error('Erro ao criar card');
+      err.statusCode = 400;
+      return next(err);
+    });
 };
 
 // Remove card só o dono do perfil
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
-      if (!card) return res.status(404).send({ message: 'Card não encontrado' });
+      if (!card) {
+        const err = new Error('Card não encontrado');
+        err.statusCode = 404;
+        return next(err);
+      }
       if (String(card.owner) !== req.user._id) {
-        return res.status(403).send({ message: 'Você não pode excluir este card' });
+        const err = new Error('Você não pode excluir este card');
+        err.statusCode = 403;
+        return next(err);
       }
       return card.deleteOne().then(() => res.send({ message: 'Card excluído' }));
     })
-    .catch(() => res.status(500).send({ message: 'Erro ao excluir card' }));
+    .catch(next);
 };
 
 // Like 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -38,14 +48,18 @@ module.exports.likeCard = (req, res) => {
   )
     .populate(['owner', 'likes'])
     .then((card) => {
-      if (!card) return res.status(404).send({ message: 'Card não encontrado' });
+      if (!card) {
+        const err = new Error('Card não encontrado');
+        err.statusCode = 404;
+        return next(err);
+      }
       res.send(card);
     })
-    .catch(() => res.status(500).send({ message: 'Erro ao dar like' }));
+    .catch(next);
 };
 
 // Remover like de um card
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -53,8 +67,12 @@ module.exports.dislikeCard = (req, res) => {
   )
     .populate(['owner', 'likes'])
     .then((card) => {
-      if (!card) return res.status(404).send({ message: 'Card não encontrado' });
+      if (!card) {
+        const err = new Error('Card não encontrado');
+        err.statusCode = 404;
+        return next(err);
+      }
       res.send(card);
     })
-    .catch(() => res.status(500).send({ message: 'Erro ao remover like' }));
+    .catch(next);
 };

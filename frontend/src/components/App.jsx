@@ -58,6 +58,19 @@ function App() {
 
   const navigate = useNavigate();
 
+  const handleApiError = (err, fallbackMessage) => {
+    const status = err?.status || err?.response?.status;
+    if (status === 401 || status === 403) {
+      handleLogout();
+    } else {
+      setTooltipStatus({
+        isSuccess: false,
+        message: fallbackMessage || "Erro inesperado"
+      });
+      setIsInfoTooltipOpen(true);
+    }
+  };
+
   useEffect(() => {
     const jwt = localStorage.getItem('jwt');
     if (jwt) {
@@ -142,11 +155,7 @@ function App() {
         prevCards.map((c) => (c._id === card._id ? newCard : c))
       );
     } catch (err) {
-      setTooltipStatus({
-        isSuccess: false,
-        message: "Erro ao curtir/descurtir card"
-      });
-      setIsInfoTooltipOpen(true);
+      handleApiError(err, "Erro ao curtir/descurtir card");
     }
   };
 
@@ -156,11 +165,7 @@ function App() {
       setCards((prevCards) => prevCards.filter((c) => c._id !== cardId));
       closeAllPopups();
     } catch (err) {
-      setTooltipStatus({
-        isSuccess: false,
-        message: "Erro ao excluir card"
-      });
-      setIsInfoTooltipOpen(true);
+      handleApiError(err, "Erro ao excluir card");
     }
   };
 
@@ -173,11 +178,7 @@ function App() {
       }));
       closeAllPopups();
     } catch (err) {
-      setTooltipStatus({
-        isSuccess: false,
-        message: "Erro ao atualizar perfil"
-      });
-      setIsInfoTooltipOpen(true);
+      handleApiError(err, "Erro ao atualizar perfil");
     }
   };
 
@@ -190,11 +191,7 @@ function App() {
       }));
       closeAllPopups();
     } catch (err) {
-      setTooltipStatus({
-        isSuccess: false,
-        message: "Erro ao atualizar avatar"
-      });
-      setIsInfoTooltipOpen(true);
+      handleApiError(err, "Erro ao atualizar avatar");
     }
   };
 
@@ -204,11 +201,7 @@ function App() {
       setCards((prevCards) => [newCard, ...prevCards]);
       closeAllPopups();
     } catch (err) {
-      setTooltipStatus({
-        isSuccess: false,
-        message: "Erro ao adicionar novo card"
-      });
-      setIsInfoTooltipOpen(true);
+      handleApiError(err, "Erro ao adicionar novo card");
     }
   };
 

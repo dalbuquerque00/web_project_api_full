@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://34.59.15.178';
+export const BASE_URL = '/api';
 
 // API Check
 const checkResponse = (response) => {  

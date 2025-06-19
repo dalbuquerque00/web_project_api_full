@@ -13,6 +13,9 @@ const { requestLogger, errorLogger } = require('./middleware/logger');
 const { PORT = 3000, MONGODB_URI = 'mongodb://127.0.0.1:27017/around_auth_db' } = process.env;
 
 const app = express();
+const cors = require('cors');
+app.use(cors());
+app.options('*', cors());
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

@@ -80,7 +80,7 @@ class Api {
 }
 
 const api = new Api({
-  baseUrl: 'https://around-api.es.tripleten-services.com/v1'
+  baseUrl: 'http://34.59.15.178'
 });
 
 export default api;

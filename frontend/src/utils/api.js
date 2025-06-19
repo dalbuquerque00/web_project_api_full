@@ -80,7 +80,7 @@ class Api {
 }
 
 const api = new Api({
-  baseUrl: 'http://34.59.15.178'
+  baseUrl: 'http://34.59.15.178:3000'
 });
 
 export default api;

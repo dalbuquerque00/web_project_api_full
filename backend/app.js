@@ -24,7 +24,7 @@ app.use(requestLogger);
 
 // Rotas públicas 
 app.post(
-  '/signup',
+  '/api/signup',
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().required().email(),
@@ -37,7 +37,7 @@ app.post(
   createUser
 );
 app.post(
-  '/signin',
+  '/api/signin',
   celebrate({
     body: Joi.object().keys({
       email: Joi.string().required().email(),
@@ -49,8 +49,8 @@ app.post(
 
 // Middleware de autenticação
 app.use(auth);
-app.use('/users', require('./routes/users'));
-app.use('/cards', require('./routes/cards'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/cards', require('./routes/cards'));
 
 app.use(errorLogger);
 // Middleware de erros do celebrate
